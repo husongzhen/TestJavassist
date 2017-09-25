@@ -13,7 +13,8 @@ public class MyInject {
 
     private final static ClassPool pool = ClassPool.getDefault();
 
-    public static void injectDir(String path, String packageName, Project project) throws NotFoundException {
+    public
+    static void injectDir(String path, String packageName, Project project) throws NotFoundException {
         pool.appendClassPath(path);
         //project.android.bootClasspath 加入android.jar，否则找不到android相关的所有类
         pool.appendClassPath(project.android.bootClasspath[0].toString());
@@ -30,11 +31,18 @@ public class MyInject {
                     if (isMyPackage) {
                         String className = Utils.getClassName(index, filePath);
                         CtClass c = pool.getCtClass(className)
-                        if (c.isFrozen()) c.defrost()
+//                        是否解冻
+                        if (c.isFrozen()) {
+//                            没有就解冻
+                            c.defrost()
+                        }
                         BusInfo mBusInfo = new BusInfo()
                         mBusInfo.setProject(project)
                         mBusInfo.setClazz(c)
-                        if (c.getName().endsWith("Activity") || c.getSuperclass().getName().endsWith("Activity")) mBusInfo.setIsActivity(true)
+                        if (c.getName().endsWith("Activity")
+                                || c.getSuperclass().getName().endsWith("Activity")) {
+                            mBusInfo.setIsActivity(true)
+                        }
                         boolean isAnnotationByBus = false;
                         //getDeclaredMethods获取自己申明的方法，c.getMethods()会把所有父类的方法都加上
                         for (CtMethod ctmethod : c.getDeclaredMethods()) {

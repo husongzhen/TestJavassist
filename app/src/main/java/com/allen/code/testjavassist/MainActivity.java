@@ -1,5 +1,6 @@
 package com.allen.code.testjavassist;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -8,6 +9,8 @@ import android.widget.Toast;
 import com.allen.code.testjavassist.event.OkBus;
 import com.app.annotation.javassist.Bus;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override
@@ -15,15 +18,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.oktext).setOnClickListener(this);
+        findViewById(R.id.ok2).setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
-        OkBus.getInstance().onEvent(1);
+        switch (view.getId()){
+            case R.id.oktext:
+                OkBus.getInstance().onEvent(1);
+                break;
+
+
+            case R.id.ok2:
+                OkBus.getInstance().onEvent(2);
+                break;
+        }
+
     }
 
     @Bus(1)
     public void busEvent() {
-        Toast.makeText(this, "event", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, OtherActivity.class));
     }
+
+
+
+    @Bus(2)
+    public void busEvent2() {
+        Toast.makeText(this, "event2", Toast.LENGTH_SHORT).show();
+    }
+
+
 }
