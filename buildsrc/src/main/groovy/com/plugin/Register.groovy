@@ -13,6 +13,13 @@ public class Register implements Plugin<Project> {
         project.logger.error "================自定义插件成功！=========="
 //        project.android.registerTransform(new PredexTransform(project))
 
+
+
+
+        project.logger.error("path= " + project);
+
+
+
         def android = project.extensions.findByType(AppExtension)
         android.registerTransform(new PredexTransform(project))
 

@@ -59,6 +59,7 @@ public class MyInject {
 
 //                          method
                             for (Annotation mAnnotation : ctmethod.getAnnotations()) {
+                                project.logger.error(mAnnotation.getMetaPropertyValues().toString())
                                 if (mAnnotation.annotationType().canonicalName.equals(BusHelper.OkBusRegisterAnnotation)) {
                                     mBusInfo.setBusRegisterMethod(ctmethod)
                                 }
