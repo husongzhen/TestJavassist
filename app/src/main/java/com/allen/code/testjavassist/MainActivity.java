@@ -2,14 +2,13 @@ package com.allen.code.testjavassist;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
 import com.allen.code.testjavassist.event.OkBus;
 import com.app.annotation.javassist.Bus;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -45,7 +44,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Bus(2)
     public void busEvent2() {
-        Toast.makeText(this, "event2", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getEvent2Message(), Toast.LENGTH_SHORT).show();
+    }
+
+    @NonNull
+    private String getEvent2Message() {
+
+
+
+
+
+        return "event2";
     }
 
 

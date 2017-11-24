@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
-apply plugin: 'bus'
+//apply plugin: 'bus'
+apply plugin: com.plugin.Register
 
 
 android {

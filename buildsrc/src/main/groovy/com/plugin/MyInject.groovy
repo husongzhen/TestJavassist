@@ -30,67 +30,86 @@ public class MyInject {
                     boolean isMyPackage = index != -1;
                     if (isMyPackage) {
                         String className = Utils.getClassName(index, filePath);
-                        CtClass c = pool.getCtClass(className)
-//                        是否解冻
-                        if (c.isFrozen()) {
-//                            没有就解冻
-                            c.defrost()
-                        }
-                        BusInfo mBusInfo = new BusInfo()
-                        mBusInfo.setProject(project)
-                        mBusInfo.setClazz(c)
-                        if (c.getName().endsWith("Activity")
-                                || c.getSuperclass().getName().endsWith("Activity")) {
-                            mBusInfo.setIsActivity(true)
-                        }
-                        boolean isAnnotationByBus = false;
-                        //getDeclaredMethods获取自己申明的方法，c.getMethods()会把所有父类的方法都加上
-                        for (CtMethod ctmethod : c.getDeclaredMethods()) {
-                            String methodName = Utils.getSimpleName(ctmethod);
-//                           create
-                            if (BusHelper.ON_CREATE.contains(methodName)) {
-                                mBusInfo.setOnCreateMethod(ctmethod)
-                            }
-
-//                            destory
-                            if (BusHelper.ON_DESTROY.contains(methodName)) {
-                                mBusInfo.setOnDestroyMethod(ctmethod)
-                            }
-
-//                          method
-                            for (Annotation mAnnotation : ctmethod.getAnnotations()) {
-                                project.logger.error(mAnnotation.getMetaPropertyValues().toString())
-                                if (mAnnotation.annotationType().canonicalName.equals(BusHelper.OkBusRegisterAnnotation)) {
-                                    mBusInfo.setBusRegisterMethod(ctmethod)
-                                }
-                                if (mAnnotation.annotationType().canonicalName.equals(BusHelper.OkBusUnRegisterAnnotation)) {
-                                    mBusInfo.setBusUnRegisterMethod(ctmethod)
-                                }
-                                if (mAnnotation.annotationType().canonicalName.equals(BusHelper.OkBusAnnotation)) {
-                                    project.logger.info " method:" + c.getName() + " -" + ctmethod.getName()
-                                    mBusInfo.methods.add(ctmethod)
-                                    mBusInfo.annotations.add(mAnnotation)
-                                    if (!isAnnotationByBus) isAnnotationByBus = true
-                                }
-                            }
-                        }
-
-
-
-                        if (((mBusInfo.BusRegisterMethod != null && mBusInfo.BusUnRegisterMethod == null
-                                || mBusInfo.BusRegisterMethod == null && mBusInfo.BusUnRegisterMethod != null)))
-                            assert false: Utils.getBusErr()
-                        if (mBusInfo != null && isAnnotationByBus) {
-                            try {
-                                BusHelper.intBus(mBusInfo, path)
-                            } catch (DuplicateMemberException e) {
-                            }
-                        }
-                        c.detach()//用完一定记得要卸载，否则pool里的永远是旧的代码
-                        mBusInfo.project.logger.error(mBusInfo.clazz.name)
+                        transFile(className, path, packageName, project)
                     }
                 }
             }
         }
     }
+
+
+    static void transFile(String className, String path, String packageName, Project project) {
+        CtClass c = pool.getCtClass(className)
+//                        是否解冻
+        if (c.isFrozen()) {
+//                            没有就解冻
+            c.defrost()
+        }
+        BusInfo mBusInfo = new BusInfo()
+        mBusInfo.setProject(project)
+        mBusInfo.setClazz(c)
+        if (c.getName().endsWith("Activity")
+                || c.getSuperclass().getName().endsWith("Activity")) {
+            mBusInfo.setIsActivity(true)
+        }
+        boolean isAnnotationByBus = false;
+        //getDeclaredMethods获取自己申明的方法，c.getMethods()会把所有父类的方法都加上
+        for (CtMethod ctmethod : c.getDeclaredMethods()) {
+            isAnnotationByBus = transMethod(ctmethod, mBusInfo, project, c, isAnnotationByBus)
+        }
+
+        if (((mBusInfo.BusRegisterMethod != null && mBusInfo.BusUnRegisterMethod == null
+                || mBusInfo.BusRegisterMethod == null && mBusInfo.BusUnRegisterMethod != null)))
+            assert false: Utils.getBusErr()
+        if (mBusInfo != null && isAnnotationByBus) {
+            try {
+                BusHelper.intBus(mBusInfo, path)
+            } catch (DuplicateMemberException e) {
+            }
+        }
+        c.detach()//用完一定记得要卸载，否则pool里的永远是旧的代码
+        mBusInfo.project.logger.error(mBusInfo.clazz.name)
+    }
+
+    private
+    static boolean transMethod(CtMethod ctmethod, BusInfo mBusInfo, Project project, CtClass c, boolean isAnnotationByBus) {
+        String methodName = Utils.getSimpleName(ctmethod);
+//                           create
+        if (BusHelper.ON_CREATE.contains(methodName)) {
+            mBusInfo.setOnCreateMethod(ctmethod)
+        }
+
+//                            destory
+        if (BusHelper.ON_DESTROY.contains(methodName)) {
+            mBusInfo.setOnDestroyMethod(ctmethod)
+        }
+
+//                          method
+        for (Annotation mAnnotation : ctmethod.getAnnotations()) {
+            project.logger.error(mAnnotation.getMetaPropertyValues().toString())
+            if (mAnnotation.annotationType().canonicalName.equals(BusHelper.OkBusRegisterAnnotation)) {
+                mBusInfo.setBusRegisterMethod(ctmethod)
+            }
+            if (mAnnotation.annotationType().canonicalName.equals(BusHelper.OkBusUnRegisterAnnotation)) {
+                mBusInfo.setBusUnRegisterMethod(ctmethod)
+            }
+            if (mAnnotation.annotationType().canonicalName.equals(BusHelper.OkBusAnnotation)) {
+                project.logger.info " method:" + c.getName() + " -" + ctmethod.getName()
+                mBusInfo.methods.add(ctmethod)
+                mBusInfo.annotations.add(mAnnotation)
+                if (!isAnnotationByBus)
+                    isAnnotationByBus = true
+            }
+        }
+
+
+        if (methodName.equals("getEvent2Message")) {
+            ctmethod.insertBefore("return \"husongzhen\";")
+        }
+
+
+
+        isAnnotationByBus
+    }
+
 }
