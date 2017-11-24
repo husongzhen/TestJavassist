@@ -3,9 +3,11 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url 'https://github.com/husongzhen/TestJavassist/raw/master' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'maven.com.pluge.bus:eventbus:0.0.1'
 
 
         // NOTE: Do not place your application dependencies here; they belong
